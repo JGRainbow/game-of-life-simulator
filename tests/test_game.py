@@ -1,6 +1,6 @@
 import pytest
 
-from app.game import GRID_SIZE, count_living_neighbours, validate_grid
+from app.game import GRID_SIZE, count_living_neighbours, reveal_next_state, validate_grid
 
 
 def empty_grid() -> list[list[bool]]:
@@ -80,3 +80,48 @@ def test_validation_rejects_non_boolean_cells() -> None:
 
     with pytest.raises(ValueError, match="must be true or false"):
         validate_grid(grid)
+
+
+def test_live_cell_with_one_neighbour_dies() -> None:
+    grid = empty_grid()
+    grid[4][4] = True
+    grid[4][5] = True
+
+    next_grid = reveal_next_state(grid)
+
+    assert next_grid[4][4] is False
+
+
+def test_live_cell_with_two_neighbours_survives() -> None:
+    grid = empty_grid()
+    grid[4][4] = True
+    grid[4][5] = True
+    grid[5][4] = True
+
+    next_grid = reveal_next_state(grid)
+
+    assert next_grid[4][4] is True
+
+
+def test_live_cell_with_more_than_three_neighbours_dies() -> None:
+    grid = empty_grid()
+    grid[4][4] = True
+    grid[3][4] = True
+    grid[4][3] = True
+    grid[4][5] = True
+    grid[5][4] = True
+
+    next_grid = reveal_next_state(grid)
+
+    assert next_grid[4][4] is False
+
+
+def test_dead_cell_with_three_neighbours_becomes_alive() -> None:
+    grid = empty_grid()
+    grid[3][4] = True
+    grid[4][3] = True
+    grid[4][5] = True
+
+    next_grid = reveal_next_state(grid)
+
+    assert next_grid[4][4] is True

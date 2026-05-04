@@ -1,12 +1,14 @@
 # Conway's Game of Life Simulator
 
-A small FastAPI web app for counting living neighbours in a 9x9 Conway's Game of Life grid.
+A small FastAPI web app for exploring a 9x9 Conway's Game of Life grid.
 
 ## Features
 
 - Click or tap cells to toggle them between dead and alive.
 - Press `toggle counts` to show or hide each cell's living neighbours.
-- Uses Python for grid validation and neighbour counting.
+- Press `reveal next state` to apply Conway's Game of Life rules once and hide visible counts.
+- Press `reset initial state` after revealing a next state to restore the grid as it was before the first reveal.
+- Uses Python for grid validation, neighbour counting, and next-state logic.
 - Keeps the frontend to minimal HTML, CSS, and JavaScript.
 
 ## Run Locally
@@ -56,3 +58,7 @@ Request body:
 ```
 
 The submitted grid must contain exactly 9 rows, and each row must contain exactly 9 boolean values.
+
+`POST /api/next-state`
+
+Accepts the same request body and returns the next 9x9 boolean grid after applying Conway's rules.

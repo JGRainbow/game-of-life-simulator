@@ -1,6 +1,8 @@
 const gridSize = 9;
 const gridElement = document.querySelector("#grid");
 const countButton = document.querySelector("#count-neighbours");
+const nextStateButton = document.querySelector("#reveal-next-state");
+const resetButton = document.querySelector("#reset-initial-state");
 const clearButton = document.querySelector("#clear-grid");
 const statusElement = document.querySelector("#status");
 
@@ -8,6 +10,7 @@ const gridState = Array.from({ length: gridSize }, () =>
   Array.from({ length: gridSize }, () => false)
 );
 let countsVisible = false;
+let initialGridState = null;
 
 function setStatus(message) {
   statusElement.textContent = message;
@@ -23,6 +26,14 @@ function renderCell(cell, row, column) {
 
 function updateCountButton() {
   countButton.setAttribute("aria-pressed", String(countsVisible));
+}
+
+function copyGridState() {
+  return gridState.map((row) => [...row]);
+}
+
+function updateResetButton() {
+  resetButton.disabled = initialGridState === null;
 }
 
 function createGrid() {
@@ -63,6 +74,12 @@ function renderCounts(counts) {
   });
 }
 
+function renderGrid() {
+  document.querySelectorAll(".cell").forEach((cell) => {
+    renderCell(cell, Number(cell.dataset.row), Number(cell.dataset.column));
+  });
+}
+
 async function countNeighbours() {
   setStatus("Counting neighbours...");
 
@@ -87,14 +104,60 @@ async function countNeighbours() {
   }
 }
 
-function hideCounts() {
+function replaceGridState(nextGrid) {
+  for (let row = 0; row < gridSize; row += 1) {
+    for (let column = 0; column < gridSize; column += 1) {
+      gridState[row][column] = nextGrid[row][column];
+    }
+  }
+}
+
+async function revealNextState() {
+  setStatus("Revealing next state...");
+
+  if (initialGridState === null) {
+    initialGridState = copyGridState();
+    updateResetButton();
+  }
+
+  if (countsVisible) {
+    hideCounts("");
+  }
+
+  try {
+    const response = await fetch("/api/next-state", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ grid: gridState }),
+    });
+
+    if (!response.ok) {
+      throw new Error("The server could not reveal the next state.");
+    }
+
+    const result = await response.json();
+    replaceGridState(result.grid);
+    renderGrid();
+
+    setStatus("Next state revealed.");
+  } catch (error) {
+    setStatus(error.message);
+  }
+}
+
+function hideCounts(statusMessage = "Neighbour counts hidden.") {
   countsVisible = false;
   updateCountButton();
 
   document.querySelectorAll(".cell").forEach((cell) => {
     renderCell(cell, Number(cell.dataset.row), Number(cell.dataset.column));
   });
-  setStatus("Neighbour counts hidden.");
+
+  if (statusMessage) {
+    setStatus(statusMessage);
+  }
 }
 
 async function toggleCounts() {
@@ -106,6 +169,20 @@ async function toggleCounts() {
   countsVisible = true;
   updateCountButton();
   await countNeighbours();
+}
+
+function resetInitialState() {
+  if (initialGridState === null) {
+    return;
+  }
+
+  replaceGridState(initialGridState);
+  initialGridState = null;
+  countsVisible = false;
+  updateCountButton();
+  updateResetButton();
+  renderGrid();
+  setStatus("Initial state restored.");
 }
 
 function clearGrid() {
@@ -120,12 +197,17 @@ function clearGrid() {
     renderCell(cell, Number(cell.dataset.row), Number(cell.dataset.column));
   });
   countsVisible = false;
+  initialGridState = null;
   updateCountButton();
+  updateResetButton();
   setStatus("Grid cleared.");
 }
 
 countButton.addEventListener("click", toggleCounts);
 clearButton.addEventListener("click", clearGrid);
+nextStateButton.addEventListener("click", revealNextState);
+resetButton.addEventListener("click", resetInitialState);
 
 createGrid();
 updateCountButton();
+updateResetButton();

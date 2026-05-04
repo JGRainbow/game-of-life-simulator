@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
-from app.game import CountGrid, count_living_neighbours
+from app.game import CountGrid, Grid, count_living_neighbours, reveal_next_state
 
 app = FastAPI(title="Conway's Game of Life")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -22,6 +22,10 @@ class CountNeighboursResponse(BaseModel):
     counts: CountGrid
 
 
+class RevealNextStateResponse(BaseModel):
+    grid: Grid
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request, "index.html")
@@ -35,3 +39,13 @@ def count_neighbours(payload: CountNeighboursRequest) -> CountNeighboursResponse
         raise HTTPException(status_code=400, detail=str(error)) from error
 
     return CountNeighboursResponse(counts=counts)
+
+
+@app.post("/api/next-state", response_model=RevealNextStateResponse)
+def next_state(payload: CountNeighboursRequest) -> RevealNextStateResponse:
+    try:
+        grid = reveal_next_state(payload.grid)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+    return RevealNextStateResponse(grid=grid)

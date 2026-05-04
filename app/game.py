@@ -61,3 +61,24 @@ def count_living_neighbours(grid: Sequence[Sequence[bool]]) -> CountGrid:
         counts.append(count_row)
 
     return counts
+
+
+def reveal_next_state(grid: Sequence[Sequence[bool]]) -> Grid:
+    validated_grid = validate_grid(grid)
+    neighbour_counts = count_living_neighbours(validated_grid)
+    next_grid: Grid = []
+
+    for row_index in range(GRID_SIZE):
+        next_row: list[bool] = []
+
+        for column_index in range(GRID_SIZE):
+            is_alive = validated_grid[row_index][column_index]
+            living_neighbours = neighbour_counts[row_index][column_index]
+
+            next_row.append(
+                living_neighbours == 3 or (is_alive and living_neighbours == 2)
+            )
+
+        next_grid.append(next_row)
+
+    return next_grid
