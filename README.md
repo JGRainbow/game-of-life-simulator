@@ -5,7 +5,7 @@ A small FastAPI web app for counting living neighbours in a 9x9 Conway's Game of
 ## Features
 
 - Click or tap cells to toggle them between dead and alive.
-- Press `count neighbours` to calculate each cell's living neighbours.
+- Press `toggle counts` to show or hide each cell's living neighbours.
 - Uses Python for grid validation and neighbour counting.
 - Keeps the frontend to minimal HTML, CSS, and JavaScript.
 

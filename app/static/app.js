@@ -7,6 +7,7 @@ const statusElement = document.querySelector("#status");
 const gridState = Array.from({ length: gridSize }, () =>
   Array.from({ length: gridSize }, () => false)
 );
+let countsVisible = false;
 
 function setStatus(message) {
   statusElement.textContent = message;
@@ -17,7 +18,11 @@ function renderCell(cell, row, column) {
 
   cell.classList.toggle("alive", isAlive);
   cell.setAttribute("aria-pressed", String(isAlive));
-  cell.textContent = cell.dataset.count || "";
+  cell.textContent = countsVisible ? cell.dataset.count || "" : "";
+}
+
+function updateCountButton() {
+  countButton.setAttribute("aria-pressed", String(countsVisible));
 }
 
 function createGrid() {
@@ -34,7 +39,12 @@ function createGrid() {
         gridState[row][column] = !gridState[row][column];
         cell.dataset.count = "";
         renderCell(cell, row, column);
-        setStatus("");
+
+        if (countsVisible) {
+          countNeighbours();
+        } else {
+          setStatus("");
+        }
       });
 
       renderCell(cell, row, column);
@@ -77,6 +87,27 @@ async function countNeighbours() {
   }
 }
 
+function hideCounts() {
+  countsVisible = false;
+  updateCountButton();
+
+  document.querySelectorAll(".cell").forEach((cell) => {
+    renderCell(cell, Number(cell.dataset.row), Number(cell.dataset.column));
+  });
+  setStatus("Neighbour counts hidden.");
+}
+
+async function toggleCounts() {
+  if (countsVisible) {
+    hideCounts();
+    return;
+  }
+
+  countsVisible = true;
+  updateCountButton();
+  await countNeighbours();
+}
+
 function clearGrid() {
   for (let row = 0; row < gridSize; row += 1) {
     for (let column = 0; column < gridSize; column += 1) {
@@ -88,10 +119,13 @@ function clearGrid() {
     cell.dataset.count = "";
     renderCell(cell, Number(cell.dataset.row), Number(cell.dataset.column));
   });
+  countsVisible = false;
+  updateCountButton();
   setStatus("Grid cleared.");
 }
 
-countButton.addEventListener("click", countNeighbours);
+countButton.addEventListener("click", toggleCounts);
 clearButton.addEventListener("click", clearGrid);
 
 createGrid();
+updateCountButton();
