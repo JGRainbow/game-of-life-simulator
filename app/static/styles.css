@@ -1,0 +1,93 @@
+:root {
+  color-scheme: light dark;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f4f4;
+  color: #151515;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 720px;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+}
+
+.instructions {
+  margin: 0 auto 1.5rem;
+  max-width: 34rem;
+}
+
+.grid {
+  display: grid;
+  gap: 3px;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: min(92vw, 540px);
+  touch-action: manipulation;
+}
+
+.cell {
+  align-items: center;
+  aspect-ratio: 1;
+  background: #000;
+  border: 2px solid #555;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-size: clamp(1rem, 4vw, 1.5rem);
+  font-weight: 700;
+  justify-content: center;
+  padding: 0;
+  user-select: none;
+}
+
+.cell.alive {
+  background: #fff;
+  color: #000;
+}
+
+.cell:focus-visible {
+  outline: 3px solid #2f80ed;
+  outline-offset: 2px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.controls button {
+  border: 0;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.8rem 1rem;
+}
+
+#count-neighbours {
+  background: #2f80ed;
+  color: #fff;
+}
+
+#clear-grid {
+  background: #ddd;
+  color: #111;
+}
+
+.status {
+  min-height: 1.5rem;
+}

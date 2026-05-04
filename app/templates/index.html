@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conway's Game of Life</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+  </head>
+  <body>
+    <main class="app">
+      <h1>Conway's Game of Life</h1>
+      <p class="instructions">
+        Click or tap cells to toggle them between dead and alive, then count each cell's living neighbours.
+      </p>
+
+      <section id="grid" class="grid" aria-label="9 by 9 Game of Life grid"></section>
+
+      <div class="controls">
+        <button id="count-neighbours" type="button">count neighbours</button>
+        <button id="clear-grid" type="button">clear grid</button>
+      </div>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="{{ url_for('static', path='app.js') }}"></script>
+  </body>
+</html>
