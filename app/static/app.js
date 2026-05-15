@@ -5,6 +5,8 @@ const nextStateButton = document.querySelector("#reveal-next-state");
 const resetButton = document.querySelector("#reset-initial-state");
 const clearButton = document.querySelector("#clear-grid");
 const statusElement = document.querySelector("#status");
+const revealAudioPath = "/static/5050.mp3";
+const revealDelayMs = 1600;
 
 const gridState = Array.from({ length: gridSize }, () =>
   Array.from({ length: gridSize }, () => false)
@@ -112,19 +114,36 @@ function replaceGridState(nextGrid) {
   }
 }
 
+function wait(milliseconds) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+async function startRevealAudio() {
+  const audio = new Audio(revealAudioPath);
+  await audio.play();
+}
+
 async function revealNextState() {
-  setStatus("Revealing next state...");
-
-  if (initialGridState === null) {
-    initialGridState = copyGridState();
-    updateResetButton();
-  }
-
-  if (countsVisible) {
-    hideCounts("");
-  }
+  nextStateButton.disabled = true;
 
   try {
+    setStatus("Playing audio...");
+
+    if (initialGridState === null) {
+      initialGridState = copyGridState();
+      updateResetButton();
+    }
+
+    if (countsVisible) {
+      hideCounts("");
+    }
+
+    await startRevealAudio();
+    await wait(revealDelayMs);
+    setStatus("Revealing next state...");
+
     const response = await fetch("/api/next-state", {
       method: "POST",
       headers: {
@@ -144,6 +163,8 @@ async function revealNextState() {
     setStatus("Next state revealed.");
   } catch (error) {
     setStatus(error.message);
+  } finally {
+    nextStateButton.disabled = false;
   }
 }
 
